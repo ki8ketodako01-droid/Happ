@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>สวิตช์คอนฟิก Happ ของฉัน</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      max-width: 480px;
+      margin: 40px auto;
+      padding: 16px;
+      line-height: 1.5;
+    }
+    button {
+      display: block;
+      width: 100%;
+      padding: 12px;
+      margin: 10px 0;
+      font-size: 16px;
+      cursor: pointer;
+    }
+    .box {
+      background: #f4f4f4;
+      padding: 10px;
+      word-break: break-all;
+      border-radius: 6px;
+      font-size: 13px;
+    }
+  </style>
+</head>
+<body>
+  <h2>สวิตช์คอนฟิก Happ ของฉัน</h2>
+
+  <button id="toggleBtn" type="button">กำลังโหลด...</button>
+
+  <div>
+    <strong>ลิงก์ Subscription ปัจจุบัน:</strong>
+    <div id="linkBox" class="box"></div>
+  </div>
+
+  <button id="copyBtn" type="button">คัดลอกลิงก์ Subscription</button>
+  <button id="openHappBtn" type="button">เปิดเข้าแอป Happ เพื่อนำเข้า</button>
+
+  <p id="statusMsg"></p>
+
+  <script>
+    let isEnabled = true;
+
+    // เปลี่ยนเป็นลิงก์ Raw ของไฟล์ .txt บน GitHub ของคุณ
+    const ON_SUB_URL  = "https://raw.githubusercontent.com/ki8ketodako01-droid/Happ/main/Cdop.txt";
+    const OFF_SUB_URL = "https://raw.githubusercontent.com/ki8ketodako01-droid/Happ/main/Cdop.txt";
+
+    const toggleBtn   = document.getElementById("toggleBtn");
+    const linkBox     = document.getElementById("linkBox");
+    const copyBtn     = document.getElementById("copyBtn");
+    const openHappBtn = document.getElementById("openHappBtn");
+    const statusMsg   = document.getElementById("statusMsg");
+
+    function getCurrentUrl() {
+      return isEnabled ? ON_SUB_URL : OFF_SUB_URL;
+    }
+
+    function updateUI() {
+      toggleBtn.textContent = isEnabled
+        ? "สถานะ: เปิดใช้งาน (กดเพื่อสลับ)"
+        : "สถานะ: ปิด/บล็อก (กดเพื่อสลับ)";
+      linkBox.textContent = getCurrentUrl();
+    }
+
+    toggleBtn.addEventListener("click", () => {
+      isEnabled = !isEnabled;
+      statusMsg.textContent = "สลับสถานะแล้ว: " + (isEnabled ? "เปิดใช้งาน" : "ปิด/บล็อก");
+      updateUI();
+    });
+
+    copyBtn.addEventListener("click", async () => {
+      const url = getCurrentUrl();
+      try {
+        await navigator.clipboard.writeText(url);
+        statusMsg.textContent = "คัดลอกลิงก์แล้ว นำไปวางในแอป Happ ได้เลย";
+      } catch (err) {
+        statusMsg.textContent = "คัดลอกอัตโนมัติไม่ได้ ให้กดค้างคัดลอกลิงก์ในกล่องด้านบนครับ";
+      }
+    });
+
+    openHappBtn.addEventListener("click", () => {
+      const url = getCurrentUrl();
+      window.location.href = "happ://add/" + encodeURIComponent(url);
+      statusMsg.textContent = "กำลังเปิดแอป Happ... หากไม่เด้ง ให้กดคัดลอกแล้ววางใน Happ เองครับ";
+    });
+
+    updateUI();
+  </script>
+</body>
+</html>
