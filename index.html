@@ -17,95 +17,92 @@
       padding: 20px; border: 1px solid #333;
     }
     h2 { margin: 0 0 16px; font-size: 1.25rem; text-align: center; }
-    .toggle-row {
+    .toggle-box {
       display: flex; align-items: center; justify-content: space-between;
       background: #262626; padding: 14px 16px; border-radius: 12px;
-      border: 1px solid #383838; margin-bottom: 16px;
+      border: 1px solid #3a3a3a; margin-bottom: 14px;
     }
-    .toggle-title { font-weight: 600; font-size: 0.95rem; }
-    .toggle-sub { font-size: 0.8rem; color: #aaa; margin-top: 2px; }
+    .title { font-weight: 700; font-size: 1rem; }
+    .sub { font-size: 0.82rem; color: #bdbdbd; margin-top: 3px; }
     .switch {
       position: relative; display: inline-block;
-      width: 52px; height: 28px; flex-shrink: 0;
+      width: 54px; height: 30px; flex-shrink: 0;
     }
     .switch input { opacity: 0; width: 0; height: 0; }
     .slider {
       position: absolute; cursor: pointer; inset: 0;
-      background-color: #455a64; transition: 0.25s; border-radius: 28px;
+      background-color: #455a64; transition: 0.25s; border-radius: 30px;
     }
     .slider:before {
       position: absolute; content: "";
-      height: 22px; width: 22px; left: 3px; bottom: 3px;
+      height: 24px; width: 24px; left: 3px; bottom: 3px;
       background-color: #fff; transition: 0.25s; border-radius: 50%;
     }
-    input:checked + .slider { background-color: #c62828; }
+    input:checked + .slider { background-color: #2e7d32; }
     input:checked + .slider:before { transform: translateX(24px); }
-    label { display: block; font-size: 0.85rem; color: #bbb; margin-bottom: 6px; }
+    .btn {
+      width: 100%; padding: 12px; border: none; border-radius: 10px;
+      font-size: 0.95rem; font-weight: 600; cursor: pointer;
+      margin-bottom: 10px; background: #37474f; color: #fff;
+    }
     .box {
       background: #262626; padding: 10px; border-radius: 8px;
       font-size: 0.8rem; word-break: break-all; color: #90caf9;
-      margin-bottom: 10px; border: 1px solid #333;
+      margin-bottom: 12px; border: 1px solid #333;
     }
-    .btn {
-      width: 100%; padding: 11px; border: none; border-radius: 10px;
-      font-size: 0.92rem; font-weight: 600; cursor: pointer;
-      margin-bottom: 14px; background: #2e7d32; color: #fff;
-    }
-    .btn-secondary { background: #37474f; }
     .status {
-      text-align: center; font-size: 0.9rem; padding: 10px;
+      text-align: center; font-size: 0.9rem; padding: 11px;
       border-radius: 8px; background: #252525; color: #ffd54f;
+      line-height: 1.4;
     }
   </style>
 </head>
 <body>
   <div class="card">
-    <h2>สวิตช์ควบคุมโหมด Happ</h2>
+    <h2>สวิตช์เปิด-ปิด Happ</h2>
 
-    <div class="toggle-row">
+    <div class="toggle-box">
       <div>
-        <div class="toggle-title" id="modeLabel">โหมดปัจจุบัน: ปกติ (เปิดใช้งาน)</div>
-        <div class="toggle-sub" id="modeDesc">สลับสวิตช์เพื่อดูคำแนะนำโหนดในแอป Happ</div>
+        <div class="title" id="stateTitle">สถานะ: ปิด (ใช้งานปกติ)</div>
+        <div class="sub" id="stateSub">กดสวิตช์เพื่อเปิดหรือปิดโหมดที่ตั้งค่าไว้</div>
       </div>
       <label class="switch">
-        <input type="checkbox" id="modeToggle" onchange="updateModeState()" />
+        <input type="checkbox" id="powerSwitch" onchange="handleSwitch()" />
         <span class="slider"></span>
       </label>
     </div>
 
-    <label>ลิงก์ Subscription (Cdop.txt):</label>
-    <div class="box" id="subUrl">https://raw.githubusercontent.com/ki8ketodako01-droid/Happ/main/Cdop.txt</div>
-    <button class="btn" onclick="copyText('subUrl', 'คัดลอกลิงก์ Subscription แล้ว')">คัดลอกลิงก์ Subscription</button>
+    <div class="box" id="subLink">https://raw.githubusercontent.com/ki8ketodako01-droid/Happ/main/Cdop.txt</div>
+    <button class="btn" onclick="copyLink('subLink', 'คัดลอกลิงก์ Subscription แล้ว')">คัดลอกลิงก์ Subscription</button>
 
-    <label>ลิงก์ Routing JSON (routing.json):</label>
-    <div class="box" id="routeUrl">https://raw.githubusercontent.com/ki8ketodako01-droid/Happ/main/routing.json</div>
-    <button class="btn btn-secondary" onclick="copyText('routeUrl', 'คัดลอกลิงก์ Routing JSON แล้ว')">คัดลอกลิงก์ Routing JSON</button>
+    <div class="box" id="routeLink">https://raw.githubusercontent.com/ki8ketodako01-droid/Happ/main/routing.json</div>
+    <button class="btn" onclick="copyLink('routeLink', 'คัดลอกลิงก์ Routing JSON แล้ว')">คัดลอกลิงก์ Routing JSON</button>
 
-    <div class="status" id="statusText">พร้อมใช้งาน — เปิดโหนดที่ต้องการในแอป Happ ได้เลย</div>
+    <div class="status" id="statusBox">พร้อมใช้งาน — เปิดหรือปิดสวิตช์ได้ตามต้องการ</div>
   </div>
 
   <script>
-    function updateModeState() {
-      const isOn = document.getElementById("modeToggle").checked;
-      const labelEl = document.getElementById("modeLabel");
-      const descEl = document.getElementById("modeDesc");
-      const statusEl = document.getElementById("statusText");
+    function handleSwitch() {
+      const isEnabled = document.getElementById("powerSwitch").checked;
+      const titleEl = document.getElementById("stateTitle");
+      const subEl = document.getElementById("stateSub");
+      const statusEl = document.getElementById("statusBox");
 
-      if (isOn) {
-        labelEl.textContent = "โหมดปัจจุบัน: เปิดสวิตช์บล็อก (Block-FreeFire)";
-        descEl.textContent = "ในแอป Happ ให้เลือกโหนด Block-FreeFire (127.0.0.1:1)";
-        statusEl.textContent = "เปิดสวิตช์บล็อกแล้ว — เลือกโหนด Block-FreeFire ในแอป Happ";
+      if (isEnabled) {
+        titleEl.textContent = "สถานะ: เปิด (ใช้งานโหมดที่ตั้งค่าไว้)";
+        subEl.textContent = "เปิดเชื่อมต่อในแอป Happ เพื่อใช้งานตามกฎและโหนดที่เลือก";
+        statusEl.textContent = "เปิดสวิตช์แล้ว — ตรวจสอบให้แน่ใจว่ากดเชื่อมต่อในแอป Happ แล้ว";
       } else {
-        labelEl.textContent = "โหมดปัจจุบัน: ปกติ (Normal-Mode)";
-        descEl.textContent = "ในแอป Happ ให้เลือกโหนดปกติหรือปิดการเชื่อมต่อ";
-        statusEl.textContent = "อยู่ในโหมดปกติ — เลือกโหนดปกติหรือปิดการเชื่อมต่อในแอป Happ";
+        titleEl.textContent = "สถานะ: ปิด (ใช้งานปกติ)";
+        subEl.textContent = "ปิดการเชื่อมต่อในแอป Happ หรือเลือกโหนดปกติเพื่อเล่นได้ตามปกติ";
+        statusEl.textContent = "ปิดสวิตช์แล้ว — หากยังเปิด VPN ใน Happ อยู่ สามารถกดปิดที่ปุ่มกลางได้ทันที";
       }
     }
 
-    function copyText(id, msg) {
+    function copyLink(id, msg) {
       const text = document.getElementById(id).textContent;
       navigator.clipboard.writeText(text);
-      document.getElementById("statusText").textContent = msg;
+      document.getElementById("statusBox").textContent = msg;
     }
   </script>
 </body>
