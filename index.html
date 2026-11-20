@@ -5,92 +5,147 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>สวิตช์คอนฟิก Happ ของฉัน</title>
   <style>
+    * { box-sizing: border-box; font-family: system-ui, -apple-system, sans-serif; }
     body {
-      font-family: sans-serif;
-      max-width: 480px;
-      margin: 40px auto;
-      padding: 16px;
-      line-height: 1.5;
+      margin: 0; padding: 20px;
+      background: #121212; color: #f5f5f5;
+      display: flex; justify-content: center;
     }
-    button {
-      display: block;
-      width: 100%;
-      padding: 12px;
-      margin: 10px 0;
-      font-size: 16px;
-      cursor: pointer;
+    .card {
+      width: 100%; max-width: 440px;
+      background: #1e1e1e; border-radius: 16px;
+      padding: 20px; border: 1px solid #333;
     }
+    h2 { margin-top: 0; font-size: 1.25rem; text-align: center; }
+    label { display: block; font-size: 0.85rem; color: #bbb; margin-bottom: 6px; }
+    input {
+      width: 100%; padding: 10px 12px; border-radius: 10px;
+      border: 1px solid #444; background: #2a2a2a; color: #fff;
+      margin-bottom: 14px; font-size: 0.95rem;
+    }
+    .btn {
+      width: 100%; padding: 12px; border: none; border-radius: 10px;
+      font-size: 1rem; font-weight: 600; cursor: pointer;
+      margin-bottom: 10px; transition: opacity 0.2s;
+    }
+    .btn:active { opacity: 0.8; }
+    .btn-normal { background: #2e7d32; color: #fff; }
+    .btn-block { background: #c62828; color: #fff; }
+    .btn-copy { background: #37474f; color: #fff; }
     .box {
-      background: #f4f4f4;
-      padding: 10px;
-      word-break: break-all;
-      border-radius: 6px;
-      font-size: 13px;
+      background: #262626; padding: 10px; border-radius: 8px;
+      font-size: 0.8rem; word-break: break-all; color: #90caf9;
+      margin-bottom: 12px; border: 1px solid #333;
+    }
+    .status {
+      text-align: center; font-size: 0.9rem; padding: 8px;
+      border-radius: 8px; background: #252525; color: #ffd54f;
     }
   </style>
 </head>
 <body>
-  <h2>สวิตช์คอนฟิก Happ ของฉัน</h2>
+  <div class="card">
+    <h2>สวิตช์คอนฟิก Happ ของฉัน</h2>
 
-  <button id="toggleBtn" type="button">กำลังโหลด...</button>
+    <label for="ghToken">GitHub Personal Access Token (สิทธิ์ Contents: Read & Write)</label>
+    <input type="password" id="ghToken" placeholder="วาง github_pat_... ที่นี่" />
 
-  <div>
-    <strong>ลิงก์ Subscription ปัจจุบัน:</strong>
-    <div id="linkBox" class="box"></div>
+    <button class="btn btn-normal" onclick="switchMode('normal')">
+      โหมด 1: เปิดใช้งานปกติ (Normal-Mode)
+    </button>
+
+    <button class="btn btn-block" onclick="switchMode('block')">
+      โหมด 2: บล็อก Free Fire (Block com.dts.freefireth)
+    </button>
+
+    <label>ลิงก์ Subscription (Raw URL สำหรับใส่ใน Happ):</label>
+    <div class="box" id="subUrl">https://raw.githubusercontent.com/ki8ketodako01-droid/Happ/main/Cdop.txt</div>
+
+    <button class="btn btn-copy" onclick="copyLink()">คัดลอกลิงก์ Subscription</button>
+
+    <div class="status" id="statusText">พร้อมใช้งาน — เลือกโหมดเพื่ออัปเดตไฟล์ Cdop.txt</div>
   </div>
 
-  <button id="copyBtn" type="button">คัดลอกลิงก์ Subscription</button>
-  <button id="openHappBtn" type="button">เปิดเข้าแอป Happ เพื่อนำเข้า</button>
-
-  <p id="statusMsg"></p>
-
   <script>
-    let isEnabled = true;
+    const OWNER = "ki8ketodako01-droid";
+    const REPO = "Happ";
+    const FILE_PATH = "Cdop.txt";
+    const BRANCH = "main";
 
-    // เปลี่ยนเป็นลิงก์ Raw ของไฟล์ .txt บน GitHub ของคุณ
-    const ON_SUB_URL  = "https://raw.githubusercontent.com/ki8ketodako01-droid/Happ/main/Cdop.txt";
-    const OFF_SUB_URL = "https://raw.githubusercontent.com/ki8ketodako01-droid/Happ/main/Cdop.txt";
+    // แก้ไขลิงก์โหนดจริงของคุณตรงนี้ (ระบบจะแปลงเป็น Base64 ให้อัตโนมัติก่อนส่งเข้า Cdop.txt)
+    const RAW_PROFILES = {
+      normal: [
+        "vless://11111111-1111-1111-1111-111111111111@example.com:443?security=tls&type=tcp#Normal-Mode"
+      ].join("\n"),
+      block: [
+        "vless://11111111-1111-1111-1111-111111111111@example.com:443?security=tls&type=tcp#Block-Test"
+      ].join("\n")
+    };
 
-    const toggleBtn   = document.getElementById("toggleBtn");
-    const linkBox     = document.getElementById("linkBox");
-    const copyBtn     = document.getElementById("copyBtn");
-    const openHappBtn = document.getElementById("openHappBtn");
-    const statusMsg   = document.getElementById("statusMsg");
-
-    function getCurrentUrl() {
-      return isEnabled ? ON_SUB_URL : OFF_SUB_URL;
+    function encodeBase64Unicode(str) {
+      return btoa(unescape(encodeURIComponent(str)));
     }
 
-    function updateUI() {
-      toggleBtn.textContent = isEnabled
-        ? "สถานะ: เปิดใช้งาน (กดเพื่อสลับ)"
-        : "สถานะ: ปิด/บล็อก (กดเพื่อสลับ)";
-      linkBox.textContent = getCurrentUrl();
-    }
+    async function switchMode(mode) {
+      const token = document.getElementById("ghToken").value.trim();
+      const statusEl = document.getElementById("statusText");
 
-    toggleBtn.addEventListener("click", () => {
-      isEnabled = !isEnabled;
-      statusMsg.textContent = "สลับสถานะแล้ว: " + (isEnabled ? "เปิดใช้งาน" : "ปิด/บล็อก");
-      updateUI();
-    });
-
-    copyBtn.addEventListener("click", async () => {
-      const url = getCurrentUrl();
-      try {
-        await navigator.clipboard.writeText(url);
-        statusMsg.textContent = "คัดลอกลิงก์แล้ว นำไปวางในแอป Happ ได้เลย";
-      } catch (err) {
-        statusMsg.textContent = "คัดลอกอัตโนมัติไม่ได้ ให้กดค้างคัดลอกลิงก์ในกล่องด้านบนครับ";
+      if (!token) {
+        statusEl.textContent = "กรุณาวาง GitHub Token ก่อนกดสลับโหมด";
+        return;
       }
-    });
 
-    openHappBtn.addEventListener("click", () => {
-      const url = getCurrentUrl();
-      window.location.href = "happ://add/" + encodeURIComponent(url);
-      statusMsg.textContent = "กำลังเปิดแอป Happ... หากไม่เด้ง ให้กดคัดลอกแล้ววางใน Happ เองครับ";
-    });
+      statusEl.textContent = "กำลังอัปเดตไฟล์ Cdop.txt บน GitHub...";
 
-    updateUI();
+      try {
+        const apiUrl = `https://api.github.com/repos/${OWNER}/${REPO}/contents/${FILE_PATH}?ref=${BRANCH}`;
+
+        // 1. ดึง SHA ล่าสุดของไฟล์
+        const getRes = await fetch(apiUrl, {
+          headers: {
+            "Authorization": `Bearer ${token}`,
+            "Accept": "application/vnd.github+json"
+          }
+        });
+
+        if (!getRes.ok) {
+          throw new Error(`ดึงข้อมูลไฟล์ไม่สำเร็จ (${getRes.status})`);
+        }
+
+        const fileInfo = await getRes.json();
+        const encodedContent = encodeBase64Unicode(RAW_PROFILES[mode]);
+
+        // 2. อัปเดตเนื้อหาไฟล์ Cdop.txt
+        const putRes = await fetch(apiUrl, {
+          method: "PUT",
+          headers: {
+            "Authorization": `Bearer ${token}`,
+            "Accept": "application/vnd.github+json",
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({
+            message: `Switch mode to ${mode}`,
+            content: encodedContent,
+            sha: fileInfo.sha,
+            branch: BRANCH
+          })
+        });
+
+        if (!putRes.ok) {
+          throw new Error(`อัปเดตไฟล์ไม่สำเร็จ (${putRes.status})`);
+        }
+
+        statusEl.textContent = `สลับเป็นโหมด "${mode}" สำเร็จ! เปิดแอป Happ แล้วกด Update Subscription ได้เลย`;
+      } catch (err) {
+        statusEl.textContent = `เกิดข้อผิดพลาด: ${err.message}`;
+      }
+    }
+
+    function copyLink() {
+      const url = document.getElementById("subUrl").textContent;
+      navigator.clipboard.writeText(url);
+      document.getElementById("statusText").textContent = "คัดลอกลิงก์ Raw Subscription แล้ว";
+    }
   </script>
 </body>
 </html>
