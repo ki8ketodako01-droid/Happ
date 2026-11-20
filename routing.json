@@ -8,6 +8,11 @@
           "com.dts.freefireth"
         ],
         "outboundTag": "block"
+      },
+      {
+        "type": "field",
+        "network": "tcp,udp",
+        "outboundTag": "direct"
       }
     ]
   }
