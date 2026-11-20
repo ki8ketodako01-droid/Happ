@@ -1,0 +1,14 @@
+{
+  "routing": {
+    "domainStrategy": "AsIs",
+    "rules": [
+      {
+        "type": "field",
+        "process": [
+          "com.dts.freefireth"
+        ],
+        "outboundTag": "block"
+      }
+    ]
+  }
+}
