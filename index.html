@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>สวิตช์คอนฟิก Happ (Free Fire Control)</title>
+  <title>แผงควบคุม Happ (ไม่ต้องใช้ Token)</title>
   <style>
     * { box-sizing: border-box; font-family: system-ui, -apple-system, sans-serif; }
     body {
@@ -18,140 +18,43 @@
     }
     h2 { margin-top: 0; font-size: 1.25rem; text-align: center; }
     label { display: block; font-size: 0.85rem; color: #bbb; margin-bottom: 6px; }
-    input {
-      width: 100%; padding: 10px 12px; border-radius: 10px;
-      border: 1px solid #444; background: #2a2a2a; color: #fff;
-      margin-bottom: 14px; font-size: 0.95rem;
-    }
-    .btn {
-      width: 100%; padding: 12px; border: none; border-radius: 10px;
-      font-size: 1rem; font-weight: 600; cursor: pointer;
-      margin-bottom: 10px; transition: opacity 0.2s;
-    }
-    .btn:active { opacity: 0.8; }
-    .btn-normal { background: #2e7d32; color: #fff; }
-    .btn-block { background: #c62828; color: #fff; }
-    .btn-copy { background: #37474f; color: #fff; }
     .box {
       background: #262626; padding: 10px; border-radius: 8px;
       font-size: 0.8rem; word-break: break-all; color: #90caf9;
-      margin-bottom: 12px; border: 1px solid #333;
+      margin-bottom: 10px; border: 1px solid #333;
     }
+    .btn {
+      width: 100%; padding: 12px; border: none; border-radius: 10px;
+      font-size: 0.95rem; font-weight: 600; cursor: pointer;
+      margin-bottom: 14px; background: #2e7d32; color: #fff;
+    }
+    .btn-secondary { background: #37474f; }
     .status {
       text-align: center; font-size: 0.9rem; padding: 10px;
       border-radius: 8px; background: #252525; color: #ffd54f;
-      line-height: 1.4;
     }
   </style>
 </head>
 <body>
   <div class="card">
-    <h2>สวิตช์ควบคุม Free Fire (Happ)</h2>
+    <h2>ลิงก์คอนฟิก Happ ของฉัน</h2>
 
-    <label for="ghToken">GitHub Personal Access Token (สิทธิ์ Contents: Read & Write)</label>
-    <input type="password" id="ghToken" placeholder="วาง github_pat_... ที่นี่" />
-
-    <button class="btn btn-normal" onclick="switchMode('normal')">
-      โหมด 1: เปิดเน็ตปกติ (เล่น Free Fire ได้)
-    </button>
-
-    <button class="btn btn-block" onclick="switchMode('block')">
-      โหมด 2: บล็อก Free Fire (แอปอื่นเล่นได้ปกติ)
-    </button>
-
-    <label>ลิงก์ Subscription (ใส่ใน Happ):</label>
+    <label>1. ลิงก์ Subscription (รวมทั้งโหมดปกติและโหมดบล็อก):</label>
     <div class="box" id="subUrl">https://raw.githubusercontent.com/ki8ketodako01-droid/Happ/main/Cdop.txt</div>
+    <button class="btn" onclick="copyText('subUrl')">คัดลอกลิงก์ Subscription</button>
 
-    <button class="btn btn-copy" onclick="copyText('subUrl', 'คัดลอกลิงก์ Subscription แล้ว')">คัดลอกลิงก์ Subscription</button>
-
-    <label>ลิงก์ Routing JSON (ใส่ในเมนู Routing ของ Happ):</label>
+    <label>2. ลิงก์ Routing JSON (กฎบล็อกเฉพาะ Free Fire):</label>
     <div class="box" id="routeUrl">https://raw.githubusercontent.com/ki8ketodako01-droid/Happ/main/routing.json</div>
+    <button class="btn btn-secondary" onclick="copyText('routeUrl')">คัดลอกลิงก์ Routing JSON</button>
 
-    <button class="btn btn-copy" onclick="copyText('routeUrl', 'คัดลอกลิงก์ Routing JSON แล้ว')">คัดลอกลิงก์ Routing JSON</button>
-
-    <div class="status" id="statusText">พร้อมใช้งาน — กรอก Token แล้วกดเลือกโหมด</div>
+    <div class="status" id="statusText">พร้อมใช้งาน — กดคัดลอกลิงก์ไปวางในแอป Happ ได้เลย</div>
   </div>
 
   <script>
-    const OWNER = "ki8ketodako01-droid";
-    const REPO = "Happ";
-    const FILE_PATH = "Cdop.txt";
-    const BRANCH = "main";
-
-    // 1. normal: ใส่ลิงก์ VLESS/VMess จริงของคุณ
-    // 2. block: ชี้ไปที่พอร์ตหลอก 127.0.0.1:1 เพื่อให้แอปที่ถูกส่งผ่านโหนดนี้เชื่อมต่อเน็ตไม่ได้
-    const RAW_PROFILES = {
-      normal: [
-        "vless://11111111-1111-1111-1111-111111111111@example.com:443?security=tls&type=tcp#Normal-Mode"
-      ].join("\n"),
-      block: [
-        "vless://00000000-0000-0000-0000-000000000000@127.0.0.1:1?type=tcp#Block-FreeFire"
-      ].join("\n")
-    };
-
-    function encodeBase64Unicode(str) {
-      return btoa(unescape(encodeURIComponent(str)));
-    }
-
-    async function switchMode(mode) {
-      const token = document.getElementById("ghToken").value.trim();
-      const statusEl = document.getElementById("statusText");
-
-      if (!token) {
-        statusEl.textContent = "กรุณาวาง GitHub Token ก่อนกดสลับโหมด";
-        return;
-      }
-
-      statusEl.textContent = "กำลังอัปเดตไฟล์ Cdop.txt บน GitHub...";
-
-      try {
-        const apiUrl = `https://api.github.com/repos/${OWNER}/${REPO}/contents/${FILE_PATH}?ref=${BRANCH}`;
-
-        const getRes = await fetch(apiUrl, {
-          headers: {
-            "Authorization": `Bearer ${token}`,
-            "Accept": "application/vnd.github+json"
-          }
-        });
-
-        if (!getRes.ok) {
-          throw new Error(`ดึงข้อมูลไฟล์ไม่สำเร็จ (HTTP ${getRes.status})`);
-        }
-
-        const fileInfo = await getRes.json();
-        const encodedContent = encodeBase64Unicode(RAW_PROFILES[mode]);
-
-        const putRes = await fetch(apiUrl, {
-          method: "PUT",
-          headers: {
-            "Authorization": `Bearer ${token}`,
-            "Accept": "application/vnd.github+json",
-            "Content-Type": "application/json"
-          },
-          body: JSON.stringify({
-            message: `Switch Cdop.txt to ${mode}`,
-            content: encodedContent,
-            sha: fileInfo.sha,
-            branch: BRANCH
-          })
-        });
-
-        if (!putRes.ok) {
-          throw new Error(`อัปเดตไฟล์ไม่สำเร็จ (HTTP ${putRes.status})`);
-        }
-
-        statusEl.textContent = mode === "block"
-          ? "สลับเป็น 'โหมดบล็อก Free Fire' สำเร็จ! ไปกด Update ใน Happ ได้เลย"
-          : "สลับเป็น 'โหมดเปิดเน็ตปกติ' สำเร็จ! ไปกด Update ใน Happ ได้เลย";
-      } catch (err) {
-        statusEl.textContent = `เกิดข้อผิดพลาด: ${err.message}`;
-      }
-    }
-
-    function copyText(elementId, msg) {
-      const text = document.getElementById(elementId).textContent;
+    function copyText(id) {
+      const text = document.getElementById(id).textContent;
       navigator.clipboard.writeText(text);
-      document.getElementById("statusText").textContent = msg;
+      document.getElementById("statusText").textContent = "คัดลอกลิงก์เรียบร้อยแล้ว!";
     }
   </script>
 </body>
